@@ -27,15 +27,26 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
                 mensaje = text.split()
                 metodo = mensaje[0]
                 email = mensaje[1]
+                expires_value = int(mensaje[4])
+
+                
                 if metodo == "REGISTER":
                     self.wfile.write ("SIP/1.0 200 OK\r\n\r\n")
                     diccionario_clientes[email] = self.client_address
-                    print diccionario_clientes
+                       
+                    
+                if expires_value == 0:
+                    del diccionario_clientes[email]
+                    self.wfile.write ("SIP/1.0 200 OK\r\n\r\n")    
+                    
             else:
                 break
             
 
+        print diccionario_clientes
 
+
+           
         
 
 if __name__ == "__main__":
