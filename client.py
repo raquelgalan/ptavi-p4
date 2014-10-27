@@ -11,18 +11,28 @@ import sys
 # Cliente UDP simple.
 
 # Dirección IP del servidor.
-SERVER = sys.argv[1]
+try:
+    SERVER = sys.argv[1]
 
-PORT = int(sys.argv[2])
+    PORT = int(sys.argv[2])
 
-# Contenido que vamos a enviar
-LINE = sys.argv[3]
+    # Contenido que vamos a enviar
+    LINE = sys.argv[3]
 
-CORREO = sys.argv[4]
+    CORREO = sys.argv[4]
+
+    EXPIRES = int(sys.argv[5])
+
+except:
+        print ("Usage: client.py ip puerto register sip_address expires_value")
+        raise SystemExit
+
 
 # Si el cliente se ejecuta con register
 if LINE == "register":
-    text = "REGISTER sip:" + CORREO + " SIP/1.0\r\n\r\n"
+    text = "REGISTER sip:" + CORREO + " SIP/1.0\r\n\r\n" 
+    text += "Expires: " + str(EXPIRES) + "\r\n\r\n"        
+        
 else:
     text = ""
 
