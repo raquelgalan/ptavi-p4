@@ -27,12 +27,10 @@ except:
         print ("Usage: client.py ip puerto register sip_address expires_value")
         raise SystemExit
 
-
 # Si el cliente se ejecuta con register
 if LINE == "register":
-    text = "REGISTER sip:" + CORREO + " SIP/1.0\r\n\r\n" 
-    text += "Expires: " + str(EXPIRES) + "\r\n\r\n"        
-        
+    text = "REGISTER sip:" + CORREO + " SIP/1.0\r\n\r\n"
+    text += "Expires: " + str(EXPIRES) + "\r\n\r\n"
 else:
     text = ""
 
