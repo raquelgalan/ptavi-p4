@@ -8,15 +8,46 @@ en UDP simple
 
 import SocketServer
 import sys
+import time
 
-diccionario_clientes = {}
+dic_clientes = {}
+
+
 class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
     """
     Echo server class
     """
+    def register2file(self, dic_clientes):
+        """
+        Si un usuario se registra o se da de baja se imprime en registered.txt
+        """
+        fich = open("registered.txt", "w")
+        fich.write("User\tIP\tExpires\r\n")
+
+        for usuario in dic_clientes:
+            ip = dic_clientes[usuario][0][0]
+            tiemp = dic_clientes[usuario][1]
+            valores = usuario + "\t" + ip + "\t" + tiemp + "\r\n"
+            fich.write(valores)
+        fich.close()
 
     def handle(self):
-        # Escribe dirección y puerto del cliente (de tupla client_address)
+        """
+        Escribe dirección y puerto del cliente (de tupla client_address)
+        """
+        #iteramos por el diccionario
+        lista = []
+        for usuario in dic_clientes.keys():
+            print ("tiempo", time.time())
+            print ("caducidad:", dic_clientes[usuario][2])
+            if time.time() >= dic_clientes[usuario][2]:
+                print("marco el usuario: ", usuario)
+                lista.append(usuario)
+
+        for usuario in lista:
+            print("borrado:", usuario)
+            del dic_clientes[usuario]
+
         print self.client_address
         self.wfile.write("Hemos recibido tu peticion ")
         while 1:
@@ -26,28 +57,25 @@ class SIPRegisterHandler(SocketServer.DatagramRequestHandler):
                 print "El cliente nos manda " + text
                 mensaje = text.split()
                 metodo = mensaje[0]
-                email = mensaje[1]
+                email = mensaje[1].split(":")[1]
+                print int(mensaje[4])
                 expires_value = int(mensaje[4])
+                cad_regist = time.time() + expires_value
+                print ("tiempo", time.time())
+                print ("caducidad:", cad_regist)
 
-                
                 if metodo == "REGISTER":
-                    self.wfile.write ("SIP/1.0 200 OK\r\n\r\n")
-                    diccionario_clientes[email] = self.client_address
-                       
-                    
-                if expires_value == 0:
-                    del diccionario_clientes[email]
-                    self.wfile.write ("SIP/1.0 200 OK\r\n\r\n")    
-                    
+                    self.wfile.write("SIP/1.0 200 OK\r\n\r\n")
+                    t = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+                    dic_clientes[email] = [self.client_address, t, cad_regist]
+                    self.register2file(dic_clientes)
+                    if expires_value == 0:
+                        del dic_clientes[email]
+                        self.wfile.write("SIP/1.0 200 OK\r\n\r\n")
+                        self.register2file(dic_clientes)
             else:
                 break
-            
-
-        print diccionario_clientes
-
-
-           
-        
+        print dic_clientes
 
 if __name__ == "__main__":
     # Creamos servidor de eco y escuchamos
